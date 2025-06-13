@@ -23,7 +23,7 @@
     "clean": "rm -rf dist",
     "build": "tsup",
     "release": "standard-version --message \"release: %s\"",
-    "release:first": "standard-version --release-as 1.0.0",
+    "release:first": "standard-version --release-as 1.0.0 --message \"release: %s\"",
     "release:minor": "standard-version --message \"release: %s\" --release-as minor",
     "release:major": "standard-version --message \"release: %s\" --release-as major",
     "git:push": "git push --follow-tags",
