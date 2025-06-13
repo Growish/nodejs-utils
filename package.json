@@ -1,0 +1,68 @@
+{
+  "name": "@growish/nodejs-utils",
+  "version": "1.0.0",
+  "description": "GrowishPay NodeJS utils",
+  "author": "Lorenzo Colombini <lorenzo.colombini@growishpay.com>",
+  "license": "ISC",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsup",
+    "release": "standard-version --message \"release: %s\"",
+    "release:first": "standard-version --release-as 1.0.0",
+    "release:minor": "standard-version --message \"release: %s\" --release-as minor",
+    "release:major": "standard-version --message \"release: %s\" --release-as major",
+    "git:push": "git push --follow-tags",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Growish/nodejs-utils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Growish/nodejs-utils/issues"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "morgan": "^1.10.0",
+    "semver": "^7.7.2",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0",
+    "mongoose": ">=7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": false
+    },
+    "mongoose": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.15.1",
+    "standard-version": "^9.5.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  }
+}
