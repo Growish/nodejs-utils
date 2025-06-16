@@ -1,6 +1,6 @@
 {
-  "name": "@growish/nodejs-utils",
-  "version": "1.0.0",
+  "name": "@growishpay/nodejs-utils",
+  "version": "1.0.1",
   "description": "GrowishPay NodeJS utils",
   "author": "Lorenzo Colombini <lorenzo.colombini@growishpay.com>",
   "license": "ISC",
@@ -17,15 +17,14 @@
     "dist"
   ],
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "access": "public"
   },
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsup",
-    "release": "standard-version --message \"release: %s\"",
-    "release:first": "standard-version --release-as 1.0.0 --message \"release: %s\"",
     "release:minor": "standard-version --message \"release: %s\" --release-as minor",
     "release:major": "standard-version --message \"release: %s\" --release-as major",
+    "release:patch": "standard-version --message \"release: %s\" --release-as patch",
     "git:push": "git push --follow-tags",
     "prepublishOnly": "npm run clean && npm run build"
   },
@@ -34,7 +33,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Growish/nodejs-utils.git"
+    "url": "git+https://github.com/Growish/nodejs-utils.git"
   },
   "bugs": {
     "url": "https://github.com/Growish/nodejs-utils/issues"
