@@ -1,4 +1,4 @@
-# @growish/node-utils
+# @growishpay/nodejs-utils
 
 **GrowishPay nodejs utils**
 
@@ -6,8 +6,8 @@
 
 ## Descrizione
 
-`@growish/nodejs-utils` è una libreria utility per node.js
-Fornisce moduli per logging, gestione connessione mongoose, notifier, plugin mongoose, express
+`@growishpay/nodejs-utils` è una libreria utility per node.js
+Fornisce moduli per logging, gestione connessione mongoose, notifier, plugin mongoose, salesforce ed express
 
 ---
 
@@ -22,22 +22,10 @@ Fornisce moduli per logging, gestione connessione mongoose, notifier, plugin mon
 
 ## Installazione
 
-La libreria si può installare esclusivamente da github
+La libreria si può installare via npm
 
 ```bash
-npm install github:growish/node-utils
-```
-
-Se vuoi installare un branch o un commit, tag specifico:
-
-```bash
-npm install github:growish/node-utils#main
-```
-
-o
-
-```bash
-npm install github:growish/node-utils#tag
+npm install @growishpay/nodejs-utils
 ```
 
 ---
@@ -51,11 +39,12 @@ La libreria supporta sia ESM che CommonJS.
 ```js
 import {
   logger,
-  expressLogger,
   notifier,
-  connectionManager,
-  salesforPlugin
-} from '@growish/node-utils';
+  mongoose,
+  express,
+  gracefulShutdown,
+  createAutoloader
+} from '@growishpay/nodejs-utils';
 
 logger.info('Logger attivo');
 ```
@@ -63,10 +52,10 @@ logger.info('Logger attivo');
 ### Import default (senza destructuring)
 
 ```js
-import utils from '@growish/node-utils';
+import utils from '@growishpay/nodejs-utils';
 
 utils.logger.info('Logger attivo');
-utils.expressLogger(/* ... */);
+await utils.mongoose.connect(/* ... */);
 ```
 
 ---
@@ -78,11 +67,12 @@ Named import con destructuring:
 ```js
 const {
   logger,
-  expressLogger,
   notifier,
-  connectionManager,
-  salesforPlugin
-} = require('@growish/node-utils');
+  mongoose,
+  express,
+  gracefulShutdown,
+  createAutoloader
+} = require('@growishpay/nodejs-utils');
 
 logger.info('Logger attivo');
 ```
@@ -90,7 +80,7 @@ logger.info('Logger attivo');
 Default import:
 
 ```js
-const utils = require('@growish/node-utils');
+const utils = require('@growishpay/nodejs-utils');
 
 utils.logger.info('Logger attivo');
 ```
@@ -99,7 +89,7 @@ utils.logger.info('Logger attivo');
 
 ## Moduli principali
 
-### logger
+## logger
 
 Modulo di logging basato su [winston](https://github.com/winstonjs/winston), configurato per rotazione giornaliera dei file.
 
@@ -110,78 +100,149 @@ logger.error('Errore registrato', { tag: 'mioComponente', error});
 
 ---
 
-### expressLogger
+## express
 
-Middleware Express per logging delle richieste HTTP, basato su [morgan](https://github.com/expressjs/morgan).
+### express.apiMiddleware
+
+Express middleware per standardizzare le risposte api
 
 ```js
 import express from 'express';
-import { expressLogger } from '@growish/node-utils';
+import utils from '@growishpay/nodejs-utils';
 
 const app = express();
-app.use(expressLogger);
+app.use(utils.express.apiMiddleware);
+```
+
+---
+
+### express.logger
+
+Express utilities per logging delle richieste HTTP, basato su [morgan](https://github.com/expressjs/morgan).
+
+```js
+import express from 'express';
+import utils from '@growishpay/nodejs-utils';
+
+const app = express();
+app.use(utils.express.logger);
+```
+
+---
+
+
+### express.routeHandler
+
+Express utilities per definire una nuova rotta api con metodi chainable
+
+```js
+import express from 'express';
+import utils from '@growishpay/nodejs-utils';
+
+const app = express();
+
+utils.express.routeHandler.routeController(tag)
+    .setMethod('get')
+    .setRoute('/')
+    .controller(async (req, res, logger) => {
+        res.send({"message": "ok"});
+    });
+
 ```
 
 ---
 
 ### notifier
 
-Modulo per inviare notifiche a Slack tramite webhook. utile per notifiche di alert o messaggi automatici.
+Modulo per inviare notifiche su canale slack tramite webhook. utile per notifiche di alert o messaggi automatici.
 
 #### Esempio di utilizzo
 
 ```js
-import { notifier } from '@growish/node-utils';
+import { notifier } from '@growishpay/nodejs-utils';
 
 const environment = 'develop';
 const hookUrl = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
 
 
-notifier.init(environment, hookUrl); // init del notifier, lanciare nel index del progetto
+notifier.init(environment, hookUrl); // init del notifier, lanciare prima di utilizzare nel servizio
 notifier.send('Questo è un messaggio di test inviato dal modulo notifier!');
 ```
 
 ---
 
-### connectionManager
+## mongoose
 
-Gestisce la connessione a MongoDB tramite Mongoose con opzioni di riconnessione e graceful shutdown
+### mongoose.connect
+
+Gestisce la connessione a MongoDB con auto riconnessione e graceful shutdown
 
 ```js
-import { connectionManager } from '@growish/node-utils';
+import { mongoose } from '@growishpay/nodejs-utils';
 
-await connectionManager('mongodb://localhost:27017/dbname');
+await mongoose.connect('mongodb://localhost:27017/dbname');
 ```
 
 ---
 
-### salesforPlugin
+### mongoose.salesforPlugin
 
 Plugin Mongoose per integrazione con salesforce.
 
 Per funzionare correttamente è necessario definire due funzioni da passer in fase di init:
 
 ```js
-    pushFn: () => {}
-deleteFn: () => {} // opzionale
+  pushFn: () => {}
+  deleteFn: () => {} // opzionale
 ```
 
 ```js
-import { salesforcePlugin } from '@growish/node-utils';
+import { mongoose } from '@growishpay/nodejs-utils';
 
-const environment = 'develop';
-const webhookUrl = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
+mongoose.salesfocePlugin.init(true, () => {}); // init del plugin lanciare prima di utilizzare nel servizio
 
+const modelSchema = /** Schema definito **/
+modelSchema.plugin(mongoose.salesforcePlugin, {
+    assetClass: "model", addSchema: true
+})
 
-salesfocePlugin.init(); // init del plugin da lancia una volta sola
-
-notifier.send('Questo è un messaggio di test inviato dal modulo notifier!');
 ```
 
-salesforce.init(environment, hookUrl); // init del notifier, lanciare nel index del progetto
-notifier.send('Questo è un messaggio di test inviato dal modulo notifier!');
+---
+
+## gracefulShutdown
+
+Utilities per registrare funzione per gestire lo shutdown di un servizio in caso di signal SIGINT e SIGTERM
+
+```js
+import { gracefulShutdown } from '@growishpay/nodejs-utils';
+
+gracefulShutdown.register(async () => {
+    // logic code 
+}, 'nome');
+
+```
 
 ---
+
+## autoloader
+
+Utilities per caricare in lazy loading dinamico i file del progetto tramite glob pattern
+
+```js
+import { createAutoloader } from '@growishpay/nodejs-utils';
+
+const autoloader = createAutoloader({ verbose: true });
+
+await autoloader.load([
+  'path/plugins/*.js',
+  'path/controllers/**/*.js'
+]);
+
+```
+
+---
+
 
 ## Build
 
@@ -201,28 +262,47 @@ npm run build
 
 Si utilizza [`standard-version`](https://github.com/conventional-changelog/standard-version) per semplificare versioning e changelog.
 
-Per effettuare un rilascio minor versione con build e push  + tag automatico:
+Per effettuare una release patch
+
+```bash
+npm run release:patch
+```
+
+Per effettuare una release minor
 
 ```bash
 npm run release:minor
 ```
 
-Per effettuare un rilascio major con build e push + tag automatico:
+Per creare una release major
 
 ```bash
 npm run release:major
 ```
 
+Se la release viene creata con successo procedere a pushare su git e pubblicare su npm con i seguenti comandi
+
+```bash
+npm run git:push
+```
+
+```bash
+npm publish
+```
+
 ---
+
 
 ## Dipendenze
 
 ### runtime
 
+- semver
 - axios
 - morgan
 - winston
 - winston-daily-rotate-file
+- fast-glob
 
 ### dev
 
@@ -249,4 +329,4 @@ ISC
 
 ## Keywords
 
-nodejs, utilities, utils, logging, express, mongoose, mongodb, winston, typescript, middleware, plugin, salesforce, notifier, growishpay, backend
+nodejs, utils, growishpay

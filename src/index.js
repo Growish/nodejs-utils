@@ -6,6 +6,7 @@ import salesforcePlugin from './moongoose/plugin/salesforce.js';
 import apiMiddleware from './express/api-middleware.js';
 import routeHandler from './express/route-handler.js';
 import gracefulShutdown from './graceful-shutdown.js';
+import createAutoloader from './create-autoloader.js';
 
 const express = {
     logger: expressLogger,
@@ -17,12 +18,13 @@ const mongoose = {
     salesforcePlugin
 }
 
-export { gracefulShutdown, logger, notifier, mongoose, express };
+export { gracefulShutdown, logger, notifier, mongoose, express, createAutoloader };
 
 export default {
     gracefulShutdown,
     logger,
     notifier,
     mongoose,
-    express
+    express,
+    createAutoloader
 };
