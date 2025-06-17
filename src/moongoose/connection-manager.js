@@ -74,12 +74,6 @@ function setupAutoReconnect() {
     });
 }
 
-// Register graceful shutdown to close MongoDB connection when shutting down
-gracefulShutdown.register(async () => {
-    reconnect = false;
-    await disconnectFromDatabase();
-}, tag, 20)
-
 /**
  * Initializes MongoDB connection and auto-reconnect behavior.
  *
@@ -94,4 +88,9 @@ export default async function connect(mongodbUri, maxRetry = config.maxRetry, ma
     config.maxRetryDelay = maxRetryDelay;
     await connectToDatabase();
     setupAutoReconnect();
+    // Register graceful shutdown to close MongoDB connection when shutting down
+    gracefulShutdown.register(async () => {
+        reconnect = false;
+        await disconnectFromDatabase();
+    }, tag, 20)
 };
