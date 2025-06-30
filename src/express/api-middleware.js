@@ -54,6 +54,7 @@ const apiMiddleware = (req, res, next) => {
      */
     function getResponse (code, payload = {}, message = '') {
 
+        console.log(payload);
         const response = {
             code
         };
@@ -130,9 +131,10 @@ const apiMiddleware = (req, res, next) => {
     /**
      * Sends 403 Forbidden with optional message.
      * @param {string} [message]
+     * @param {*} payload
      * @returns {import('express').Response}
      */
-    res.forbidden = (message) => getResponse(403, null, message);
+    res.forbidden = (message, payload) => getResponse(403, payload, message);
 
     /**
      * Sends 409 Conflict with reason and message.
