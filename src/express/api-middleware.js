@@ -54,7 +54,6 @@ const apiMiddleware = (req, res, next) => {
      */
     function getResponse (code, payload = {}, message = '') {
 
-        console.log(payload);
         const response = {
             code
         };
