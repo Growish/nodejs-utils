@@ -4,16 +4,15 @@ import logger from './logger.js'
 const tag = 'notifier';
 
 const options = {
-    environment: '',
-    slackHookBaseUrl: '',
-    slackBotToken: '',
+    botOauthToken: '',
+    channel: '',
     isInit: false
 }
 
-const init = (environment, slackHookBaseUrl = '', slackBotToken = '') => {
+const init = (environment, botOauthToken, channel = '#general') => {
     options.environment = environment;
-    options.slackHookBaseUrl = slackHookBaseUrl;
-    options.slackBotToken = slackBotToken
+    options.botOauthToken = botOauthToken;
+    options.channel = channel;
     options.isInit = true;
 };
 
@@ -47,7 +46,7 @@ const send = async function (text, attachment = null, level = 'low', channel = n
         return logger.error('slack notifer not initialized!', { tag });
 
     const payload = {
-        channel: channel || undefined,
+        channel: channel || options.channel,
         attachments: [
             {
                 color: getLevelColor(level),
@@ -83,29 +82,19 @@ const send = async function (text, attachment = null, level = 'low', channel = n
         });
     }
 
-    if (options.slackHookBaseUrl !== '' && !channel) {
-        try {
-            await axios.post(options.slackHookBaseUrl, payload);
-            logger.info('slack notification send', { tag, text });
-        } catch (err) {
-            logger.error('slack notification fail', { tag, text, err });
-        }
-    }
-    if (options.slackBotToken !== '' && channel) {
-        try {
-            await axios.post('https://slack.com/api/chat.postMessage',
-                payload,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${options.slackBotToken}`,
-                    },
-                }
-            );
-            logger.info('slack notification send', { tag, text });
-        } catch (err) {
-            logger.error('slack notification fail', { tag, text, err });
-        }
+    try {
+        await axios.post('https://slack.com/api/chat.postMessage',
+            payload,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${options.botOauthToken}`,
+                },
+            }
+        );
+        logger.info('slack notification send', { tag, text });
+    } catch (err) {
+        logger.error('slack notification fail', { tag, text, err });
     }
     return;
 
