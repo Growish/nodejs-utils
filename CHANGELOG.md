@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/Growish/nodejs-utils/compare/v1.1.0...v1.1.1) (2025-10-17)
+
 ## [1.1.0](https://github.com/Growish/nodejs-utils/compare/v1.0.8...v1.1.0) (2025-07-16)
 
 ### [1.0.8](https://github.com/Growish/nodejs-utils/compare/v1.0.7...v1.0.8) (2025-07-16)
