@@ -162,7 +162,8 @@ Modulo per inviare notifiche su canale slack tramite webhook. utile per notifich
 import { notifier } from '@growishpay/nodejs-utils';
 
 const environment = 'develop';
-const hookUrl = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX';
+const hookUrl = 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'; // incoming webhook url del canale
+const slackBooToken = 'token' // in caso di voglia inviare un messaggio ad un canale diverso
 
 
 notifier.init(environment, hookUrl); // init del notifier, lanciare prima di utilizzare nel servizio
