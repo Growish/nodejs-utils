@@ -5,7 +5,8 @@ const tag = 'routeHandler';
 
 const config = {
     expressInstance: null,
-    locale: 'en'
+    locale: 'en',
+    debug: false
 };
 
 /**
@@ -25,10 +26,12 @@ const contextualizedLogger = context => ({
  *
  * @param {import('express').Express} expressInstance - Express application instance.
  * @param {string} [locale=config.locale] - Optional locale string.
+ * @param {boolean} [debug=config.debug] - Add query and body params into debug log
  */
-const init = (expressInstance, locale = config.locale ) => {
+const init = (expressInstance, locale = config.locale, debug = config.debug ) => {
     config.expressInstance = expressInstance;
     config.locale = locale;
+    config.debug = debug;
     config.expressInstance.use(apiMiddleware);
 }
 
@@ -97,7 +100,12 @@ const routeController = (name) => {
             const logger = contextualizedLogger(state);
             const ctrl = async function (req, res ) {
                 try {
-                    logger.debug('new request', { method: state.method, route: state.route, query: req.query, body: req.body });
+                    logger.debug('new request', {
+                        method: state.method,
+                        route: state.route,
+                        query: config.debug ? req.query : {},
+                        body: config.debug ? req.body : {}
+                    });
                     await controllerFn(req, res, logger);
                 } catch (err) {
                     return res.apiErrorResponse(err,state.name);
