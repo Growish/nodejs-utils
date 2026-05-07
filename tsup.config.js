@@ -7,7 +7,7 @@ export default defineConfig({
     clean: true,
     dts: false,
     outDir: 'dist',
-    target: 'node16',
+    target: 'node20',
     esbuildOptions(options) {
         if (options.format === 'cjs') {
             options.banner = {

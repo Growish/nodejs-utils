@@ -13,7 +13,7 @@ Fornisce moduli per logging, gestione connessione mongoose, notifier, plugin mon
 
 ## Requisiti
 
-- Node.js >= 16.0.0
+- Node.js >= 20.0.0
 - Peer dependencies:
   - `express` >= 4.0.0
   - `mongoose` >= 7.0.0
@@ -39,6 +39,7 @@ La libreria supporta sia ESM che CommonJS.
 ```js
 import {
   logger,
+  loggerCloud,
   notifier,
   mongoose,
   express,
@@ -47,6 +48,7 @@ import {
 } from '@growishpay/nodejs-utils';
 
 logger.info('Logger attivo');
+loggerCloud.info('Logger cloud attivo');
 ```
 
 ### Import default (senza destructuring)
@@ -67,6 +69,7 @@ Named import con destructuring:
 ```js
 const {
   logger,
+  loggerCloud,
   notifier,
   mongoose,
   express,
@@ -75,6 +78,7 @@ const {
 } = require('@growishpay/nodejs-utils');
 
 logger.info('Logger attivo');
+loggerCloud.info('Logger cloud attivo');
 ```
 
 Default import:
@@ -83,6 +87,7 @@ Default import:
 const utils = require('@growishpay/nodejs-utils');
 
 utils.logger.info('Logger attivo');
+utils.loggerCloud.info('Logger cloud attivo');
 ```
 
 ---
@@ -96,6 +101,19 @@ Modulo di logging basato su [winston](https://github.com/winstonjs/winston), con
 ```js
 logger.info('Informazione di log', { tag: 'mioComponente'});
 logger.error('Errore registrato', { tag: 'mioComponente', error});
+```
+
+### loggerCloud
+
+Versione cloud del logger, pensata per ambienti dove i log vengono raccolti da CloudWatch e poi consultati da Grafana.
+
+- non scrive file su disco
+- emette log JSON su console
+
+```js
+import { loggerCloud } from '@growishpay/nodejs-utils';
+
+loggerCloud.info('Informazione di log', { tag: 'mioComponente' });
 ```
 
 ---
@@ -126,6 +144,18 @@ import utils from '@growishpay/nodejs-utils';
 
 const app = express();
 app.use(utils.express.logger);
+```
+
+### express.loggerCloud
+
+Versione cloud del logger HTTP per Express.
+
+```js
+import express from 'express';
+import utils from '@growishpay/nodejs-utils';
+
+const app = express();
+app.use(utils.express.loggerCloud);
 ```
 
 ---

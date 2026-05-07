@@ -1,7 +1,9 @@
 import { createLogger, format, transports } from 'winston';
 import 'winston-daily-rotate-file';
+import { mkdirSync } from 'fs';
 import { join } from 'path';
 const { combine, timestamp, printf, colorize, json, splat } = format;
+const LOGS_DIRECTORY = join(process.cwd(), 'logs');
 
 const consoleFormat = combine(
     timestamp(),
@@ -12,6 +14,19 @@ const consoleFormat = combine(
 
 const jsonFormat = printf(info => {
     return JSON.stringify({ timestamp: info.timestamp, level: info.level.toUpperCase(), process: process.title, pid: process.pid, tag: info.tag || '', message: info.message || '', extra: extractInfo(info) });
+});
+
+const cloudJsonFormat = printf(info => {
+    return JSON.stringify({
+        timestamp: info.timestamp,
+        level: info.level.toUpperCase(),
+        mode: 'cloud',
+        process: process.title,
+        pid: process.pid,
+        tag: info.tag || '',
+        message: info.message || '',
+        extra: extractInfo(info)
+    });
 });
 
 const extractInfo = (info) => {
@@ -54,6 +69,10 @@ const extractInfo = (info) => {
     return JSON.stringify(obj);
 };
 
+const ensureLogsDirectory = () => {
+    mkdirSync(LOGS_DIRECTORY, { recursive: true });
+};
+
 const options = {
 
     info: {
@@ -88,13 +107,76 @@ const options = {
     }
 };
 
-const logger = createLogger({
-    transports: [
+const createLocalTransports = () => {
+    ensureLogsDirectory();
+
+    return [
         new transports.DailyRotateFile(options.info),
         new transports.DailyRotateFile(options.error),
         new transports.Console(options.console)
-    ],
+    ];
+};
+
+const createCloudTransports = () => {
+    return [
+        new transports.Console({
+            level: 'debug',
+            handleExceptions: true,
+            stderrLevels: [ 'error' ],
+            format: combine( timestamp(), splat(), cloudJsonFormat )
+        })
+    ];
+};
+
+const createLocalLogger = () => createLogger({
+    transports: createLocalTransports(),
     exitOnError: false
 });
 
+const createCloudLogger = () => createLogger({
+    transports: createCloudTransports(),
+    exitOnError: false
+});
+
+const createLazyLogger = (factory) => {
+    let instance = null;
+
+    const getInstance = () => {
+        if (!instance)
+            instance = factory();
+
+        return instance;
+    };
+
+    return new Proxy({}, {
+        get(_target, property) {
+            const value = getInstance()[property];
+
+            return typeof value === 'function' ? value.bind(getInstance()) : value;
+        },
+        set(_target, property, value) {
+            getInstance()[property] = value;
+            return true;
+        },
+        has(_target, property) {
+            return property in getInstance();
+        },
+        ownKeys() {
+            return Reflect.ownKeys(getInstance());
+        },
+        getOwnPropertyDescriptor(_target, property) {
+            const descriptor = Object.getOwnPropertyDescriptor(getInstance(), property);
+
+            if (descriptor)
+                descriptor.configurable = true;
+
+            return descriptor;
+        }
+    });
+};
+
+const logger = createLazyLogger(createLocalLogger);
+const loggerCloud = createLazyLogger(createCloudLogger);
+
 export default logger;
+export { loggerCloud };
