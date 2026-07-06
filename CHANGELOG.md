@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/Growish/nodejs-utils/compare/v1.2.0...v1.2.1) (2026-07-06)
+
+
+### Features
+
+* add cloud logging support and update Node.js version requirement ([9f77bde](https://github.com/Growish/nodejs-utils/commit/9f77bde55a360f2a51a243be03e03f31bee56b93))
+
 ## [1.2.0](https://github.com/Growish/nodejs-utils/compare/v1.1.3...v1.2.0) (2026-05-07)
 
 ### [1.1.3](https://github.com/Growish/nodejs-utils/compare/v1.1.2...v1.1.3) (2026-01-15)

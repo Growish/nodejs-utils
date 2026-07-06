@@ -1,8 +1,8 @@
 {
   "name": "@growishpay/nodejs-utils",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "GrowishPay NodeJS utils",
-  "author": "Lorenzo Colombini <lorenzo.colombini@growishpay.com>",
+  "author": "Lorenzo Colombini <lorenzo.colombini@growishpay.com> - Martin Herrera <martin.herrera@growishpay.com> ",
   "license": "ISC",
   "type": "module",
   "main": "./dist/index.cjs",
